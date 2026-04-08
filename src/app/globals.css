@@ -4,17 +4,19 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-space-grotesk);
 
-  /* Brutalist Theme Palette based on Atollom Logo */
-  --color-background: #060b19; /* Deep dark blue from logo */
-  --color-foreground: #e5e2e1;
-  --color-primary: #a8df19; /* Lime green from logo */
-  --color-primary-inverse: #87b80a; /* Darker lime */
-  --color-secondary: #0a1128; /* Slightly lighter deep blue */
-  --color-secondary-dim: #cf2a2a; /* Warning Red for Anxiety/Etc */
-  --color-tertiary: #c6c6c7;
-  --color-surface-low: #080f22;
-  --color-surface-high: #101c3d;
-  --color-outline: #22325c;
+  --color-background: #040d1a;
+  --color-foreground: #e8f0fe;
+  --color-primary: #a8df19;
+  --color-primary-dim: rgba(168,223,25,0.15);
+  --color-primary-glow: rgba(168,223,25,0.4);
+  --color-primary-inverse: #87b80a;
+  --color-secondary: #0a1128;
+  --color-secondary-dim: #cf2a2a;
+  --color-tertiary: #7a8fb5;
+  --color-surface-low: #060e1e;
+  --color-surface-high: #0c1830;
+  --color-outline: #1a2e55;
+  --color-cyan: #00e5ff;
 }
 
 body {
@@ -23,7 +25,82 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Circuit board background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(168,223,25,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168,223,25,0.025) 1px, transparent 1px),
+    linear-gradient(rgba(168,223,25,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168,223,25,0.015) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > * { position: relative; z-index: 1; }
+
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+}
+
+/* Neon border box */
+.neon-box {
+  border: 1px solid rgba(168,223,25,0.6);
+  box-shadow: 0 0 8px rgba(168,223,25,0.2), 0 0 20px rgba(168,223,25,0.08), inset 0 0 15px rgba(168,223,25,0.04);
+}
+
+/* Corner brackets decoration */
+.neon-corner {
+  position: relative;
+}
+.neon-corner::before,
+.neon-corner::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--color-primary);
+  border-style: solid;
+}
+.neon-corner::before {
+  top: -1px; left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.neon-corner::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* Neon text glow */
+.neon-text {
+  text-shadow: 0 0 10px rgba(168,223,25,0.8), 0 0 30px rgba(168,223,25,0.4);
+}
+
+/* Scanline overlay */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Progress bar neon */
+.neon-progress {
+  background: rgba(168,223,25,0.15);
+  border: 1px solid rgba(168,223,25,0.3);
+}
+.neon-progress-fill {
+  background: linear-gradient(90deg, #5a8a00, #a8df19);
+  box-shadow: 0 0 8px rgba(168,223,25,0.6);
 }

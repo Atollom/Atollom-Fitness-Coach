@@ -65,7 +65,7 @@ export default function Onboarding() {
       if (data.isComplete) {
         setCompleted(true);
         sessionStorage.removeItem(STORAGE_KEY);
-        setTimeout(() => router.push("/"), 3500);
+        setTimeout(() => router.push("/"), 6000);
       }
     } catch {
       setIsTyping(false);
