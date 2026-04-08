@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Send, Terminal, Loader2, Zap, AlertTriangle, Battery, Bell, BellOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
 import { useRouter } from "next/navigation";
 import BottomNav from "./components/BottomNav";
 import { usePushNotifications } from "./hooks/usePushNotifications";
@@ -21,7 +22,7 @@ const QUICK_ACTIONS = [
 function formatMessage(text: string) {
   // Render markdown links as clickable
   const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g;
-  const parts: (string | JSX.Element)[] = [];
+  const parts: (string | React.ReactElement)[] = [];
   let last = 0;
   let match;
   let key = 0;
