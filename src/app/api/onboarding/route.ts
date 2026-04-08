@@ -5,6 +5,33 @@ import { neon } from "@neondatabase/serverless";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const sql = neon(process.env.DATABASE_URL!);
 
+const SYSTEM_PROMPT = `Eres ATLAS, el coach de fitness con IA de ATOLLOM AI. Eres ese entrenador personal que todos quieren tener: profesional, experimentado, motivador y directo. Hablas como un coach de gimnasio real — con confianza, calidez y autoridad.
+
+ESTILO:
+- Cálido pero directo. Frases cortas y poderosas.
+- Motiva con hechos: "A tu peso y altura, con este protocolo, en 8 semanas lo vas a notar."
+- Emojis con moderación 💪🔥
+
+TAREA — PERFIL COMPLETO:
+Entrevista natural (1-2 preguntas a la vez) para obtener:
+1. Nombre
+2. Edad y género
+3. Peso (kg) y altura (cm)
+4. Objetivo principal y plazo esperado
+5. Lesiones actuales o pasadas
+6. Problemas de salud / condiciones médicas
+7. Alergias alimentarias o intolerancias
+8. Nivel de actividad actual
+9. Horas de sueño promedio
+10. Nivel de estrés diario
+11. Horario de trabajo y ventana para entrenar
+12. Acceso a gym, equipo en casa, o solo peso corporal
+13. Presupuesto semanal para comida (pesos MXN)
+14. Supermercados o tiendas habituales
+
+Al tener TODO haz un resumen motivador y añade al final: ONBOARDING_COMPLETE
+NUNCA escribas ONBOARDING_COMPLETE si faltan datos.`;
+
 export async function POST(req: NextRequest) {
   try {
     const { message, history } = await req.json();
@@ -13,9 +40,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ reply: "Error: falta configuración del servidor.", isComplete: false });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
+    });
 
-    // Gemini requiere que el historial empiece con "user" — omitir mensajes iniciales del coach
     const allMapped = history
       .filter((h: { role: string }) => h.role !== "system")
       .map((h: { role: string; content: string }) => ({
@@ -25,78 +54,21 @@ export async function POST(req: NextRequest) {
     const firstUserIdx = allMapped.findIndex((m: { role: string }) => m.role === "user");
     const formattedHistory = firstUserIdx > 0 ? allMapped.slice(firstUserIdx) : firstUserIdx === 0 ? allMapped : [];
 
-    const chat = model.startChat({
-      history: formattedHistory,
-      systemInstruction: `Eres ATLAS, el coach de fitness con IA de ATOLLOM AI. Eres como ese entrenador personal que todos quieren tener: profesional, experimentado, motivador y directo. Hablas como un coach de gimnasio real — con confianza, calidez y autoridad. No eres un robot ni un sistema, eres un experto que sabe que va a conseguirte resultados.
-
-ESTILO DE COMUNICACIÓN:
-- Cálido pero directo. Como un PT que cobra $500/hora y sabe lo que hace.
-- Frases cortas y poderosas. Nada de parrafos largos.
-- Motiva con hechos, no con frases vacías. "A tu peso y altura, con este protocolo, en 8 semanas vas a notar la diferencia" — ese tipo de confianza.
-- Usa emojis con moderación y solo cuando refuercen el mensaje (💪🔥✅).
-
-TAREA: PERFIL INICIAL COMPLETO
-Entrevista al usuario de forma natural (1-2 preguntas a la vez, conversacional) para obtener TODA esta información antes de activar el sistema. Hazlo sentir que estás construyendo su plan personalizado:
-
-DATOS OBLIGATORIOS:
-1. Nombre
-2. Edad y género
-3. Peso actual (kg) y altura (cm)
-4. Objetivo principal (bajar peso / ganar músculo / tonificar / rendimiento / salud general)
-5. Plazo que tiene en mente para ver resultados
-6. Lesiones actuales o pasadas que debamos respetar
-7. Problemas de salud o condiciones médicas (diabetes, hipertensión, rodillas, etc.)
-8. Alergias alimentarias o intolerancias
-9. Nivel de actividad actual (sedentario / algo activo / activo / muy activo)
-10. Horas de sueño promedio por noche
-11. Nivel de estrés diario (bajo / medio / alto / muy alto)
-12. Horario de trabajo y cuándo puede entrenar
-13. Si tiene acceso a gym, equipo en casa, o solo peso corporal
-14. Presupuesto semanal para comida (en pesos MXN)
-15. Supermercados o tiendas donde compra habitualmente
-
-FLUJO:
-- Empieza presentándote brevemente y pidiendo nombre + objetivo.
-- Agrupa preguntas relacionadas naturalmente (ej: peso+altura juntos, lesiones+salud juntos).
-- Adapta el tono a lo que dice el usuario — si es alguien sedentario, sé más alentador; si ya entrena, sé más técnico.
-- Cuando tengas TODO, haz un resumen motivador del plan que vas a construirle y termina con la directiva oculta: ONBOARDING_COMPLETE
-- NUNCA escribas ONBOARDING_COMPLETE si faltan datos.`,
-    });
-
-    const result = await chat.sendMessage([{ text: message }]);
+    const chat = model.startChat({ history: formattedHistory });
+    const result = await chat.sendMessage(message);
     const textResponse = result.response.text();
     const isComplete = textResponse.includes("ONBOARDING_COMPLETE");
 
     if (isComplete) {
       const allText = [...formattedHistory,
         { role: "user", parts: [{ text: message }] },
-        { role: "model", parts: [{ text: textResponse }] }
+        { role: "model", parts: [{ text: textResponse }] },
       ].map(m => `${m.role}: ${m.parts[0].text}`).join("\n");
 
       const extractModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-      const extractResult = await extractModel.generateContent(`Del siguiente historial extrae los datos y devuelve SOLO JSON válido:
-{
-  "nombre": string|null,
-  "edad": number|null,
-  "genero": string|null,
-  "peso_kg": number|null,
-  "altura_cm": number|null,
-  "objetivo": string|null,
-  "lesiones": string|null,
-  "problemas_salud": string|null,
-  "alergias": string|null,
-  "nivel_actividad": string|null,
-  "horas_sueno": number|null,
-  "nivel_estres": string|null,
-  "horario_trabajo": string|null,
-  "ventana_entrenamiento": string|null,
-  "equipo_disponible": string|null,
-  "presupuesto_semanal": number|null,
-  "supermercados": string[]|null
-}
-
-Historial:
-${allText}`);
+      const extractResult = await extractModel.generateContent(
+        `Extrae datos del historial. Devuelve SOLO JSON sin markdown:\n{"nombre":null,"edad":null,"genero":null,"peso_kg":null,"altura_cm":null,"objetivo":null,"lesiones":null,"problemas_salud":null,"alergias":null,"nivel_actividad":null,"horas_sueno":null,"nivel_estres":null,"horario_trabajo":null,"ventana_entrenamiento":null,"equipo_disponible":null,"presupuesto_semanal":null,"supermercados":null}\n\nHistorial:\n${allText}`
+      );
 
       try {
         const raw = extractResult.response.text().replace(/```json|```/g, "").trim();

@@ -9,23 +9,42 @@ export async function POST(req: NextRequest) {
   try {
     const { message, history } = await req.json();
 
-    // Obtener perfil del usuario más reciente
-    const profiles = await sql`
-      SELECT * FROM user_profile WHERE perfil_completo = true ORDER BY created_at DESC LIMIT 1
-    `;
+    const profiles = await sql`SELECT * FROM user_profile WHERE perfil_completo = true ORDER BY created_at DESC LIMIT 1`;
     const profile = profiles[0] || null;
 
-    const profileContext = profile
-      ? `Perfil del usuario:
-- Peso actual: ${profile.peso_kg} kg
-- Objetivo: ${profile.objetivo}
-- Horario de trabajo: ${profile.horario_trabajo}
-- Ventana de entrenamiento: ${profile.ventana_entrenamiento}
-- Presupuesto semanal: $${profile.presupuesto_semanal} MXN
-- Supermercados: ${Array.isArray(profile.supermercados) ? profile.supermercados.join(", ") : profile.supermercados}`
-      : "Perfil no configurado aún.";
+    const systemPrompt = `Eres ATLAS, el coach de fitness con IA de ATOLLOM AI. Eres ese entrenador personal que todos quieren — profesional, motivador, directo y con resultados comprobados.
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+PERFIL DEL USUARIO:
+- Nombre: ${profile?.nombre || "no definido"}
+- Peso: ${profile?.peso_kg || "?"}kg | Altura: ${profile?.altura_cm || "?"}cm
+- Objetivo: ${profile?.objetivo || "no definido"}
+- Lesiones: ${profile?.lesiones || "ninguna"}
+- Salud: ${profile?.problemas_salud || "sin condiciones"}
+- Alergias: ${profile?.alergias || "ninguna"}
+- Nivel: ${profile?.nivel_actividad || "no definido"}
+- Sueño: ${profile?.horas_sueno || "?"}h | Estrés: ${profile?.nivel_estres || "?"}
+- Entrena: ${profile?.ventana_entrenamiento || "no definido"}
+- Equipo: ${profile?.equipo_disponible || "no definido"}
+- Presupuesto comida: $${profile?.presupuesto_semanal || "?"} MXN/sem
+- Tiendas: ${Array.isArray(profile?.supermercados) ? profile.supermercados.join(", ") : "locales"}
+
+PERSONALIDAD:
+- Directo, confiado y motivador. PT de alto rendimiento.
+- Máximo 3-4 líneas por respuesta. Concreto y accionable.
+- Usa emojis con moderación 💪🔥
+- Cuando logra algo: reconócelo genuinamente.
+- Cuando flaquea: "Eso ya pasó. Ahora esto."
+
+CAPACIDADES:
+1. ENTRENAMIENTO: Sugiere ejercicios + video YouTube real en español. Formato: "🎬 [Título](URL)"
+2. NUTRICIÓN: Considera presupuesto, tiendas y alergias del perfil.
+3. ESTRÉS/ÁNIMO: 1 acción concreta inmediata, no terapia.
+4. Termina sugerencias de entrenamiento con frase de cierre motivadora.`;
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: { role: "system", parts: [{ text: systemPrompt }] },
+    });
 
     const allMapped = (history || [])
       .filter((h: { role: string }) => h.role !== "system")
@@ -36,36 +55,13 @@ export async function POST(req: NextRequest) {
     const firstUserIdx = allMapped.findIndex((m: { role: string }) => m.role === "user");
     const formattedHistory = firstUserIdx > 0 ? allMapped.slice(firstUserIdx) : firstUserIdx === 0 ? allMapped : [];
 
-    const chat = model.startChat({
-      history: formattedHistory,
-      systemInstruction: `Eres ATLAS, el coach de fitness con IA de ATOLLOM AI. Eres ese entrenador personal que todos quieren — el que sabe exactamente qué decirte para que te muevas, el que te conoce mejor que tú mismo, y el que tiene el conocimiento para respaldarlo todo.
-
-${profileContext}
-
-PERSONALIDAD:
-- Directo, confiado y motivador. Como un PT de alto rendimiento.
-- Máximo 3-4 líneas. Concreto y accionable.
-- Cuando logra algo: reconócelo de verdad, no con frases vacías.
-- Cuando flaquea: no juzgas, redireccionas. "Eso ya pasó. Ahora esto."
-- Puedes usar emojis con moderación 💪🔥
-
-CAPACIDADES:
-1. ENTRENAMIENTO: Al sugerir ejercicios, incluye un video real de YouTube en español. Formato: "🎬 [Nombre del video](URL)" — usa videos de canales populares (Gymvirtual, MrMuscle, Sergio Peinado, etc.)
-2. NUTRICIÓN: Analiza comidas considerando presupuesto de ${profile?.presupuesto_semanal || "?"} MXN/sem y tiendas: ${Array.isArray(profile?.supermercados) ? profile.supermercados.join(", ") : "locales"}. Si hay alergias (${profile?.alergias || "ninguna"}) o condiciones (${profile?.problemas_salud || "ninguna"}), respétalas siempre.
-3. MENTE/ESTRÉS: Si reporta ansiedad o desmotivación, da 1 acción concreta inmediata. No terapia — acción.
-4. CONTEXTO: Siempre tienes en mente su objetivo (${profile?.objetivo || "no definido"}), lesiones (${profile?.lesiones || "ninguna"}) y nivel (${profile?.nivel_actividad || "no definido"}).
-
-Termina sugerencias de entrenamiento con una frase corta de cierre poderosa.`,
-    });
-
-    const result = await chat.sendMessage([{ text: message }]);
+    const chat = model.startChat({ history: formattedHistory });
+    const result = await chat.sendMessage(message);
     const reply = result.response.text();
 
     return NextResponse.json({ reply });
   } catch (error) {
     console.error("Chat error:", error);
-    return NextResponse.json({
-      reply: "ERROR NEURONAL. REINTENTA.",
-    });
+    return NextResponse.json({ reply: "Hubo un problema de conexión. Inténtalo de nuevo 🔄" });
   }
 }
