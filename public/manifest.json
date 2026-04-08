@@ -1,0 +1,18 @@
+{
+  "name": "ATOLLOM OS",
+  "short_name": "ATOLLOM",
+  "description": "Tu Sistema Operativo de Disciplina",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060b19",
+  "theme_color": "#a8df19",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
