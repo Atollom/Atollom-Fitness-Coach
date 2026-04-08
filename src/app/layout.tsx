@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import AppShell from "./components/AppShell";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -40,7 +41,9 @@ export default function RootLayout({
         <meta name="theme-color" content="#060b19" />
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground bg-[#131313] text-[#e5e2e1]">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-foreground bg-[#131313] text-[#e5e2e1]">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

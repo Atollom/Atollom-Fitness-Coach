@@ -208,9 +208,9 @@ export default function Home() {
       </div>
 
       {/* Chat Input */}
-      <footer className="px-4 py-3 bg-surface-low border-t-2 border-surface-high shrink-0">
+      <footer className="px-3 py-3 bg-surface-low border-t-2 border-surface-high shrink-0">
         <form
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full"
           onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
         >
           <input
@@ -218,13 +218,13 @@ export default function Home() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
-            placeholder="Reportar estado al sistema..."
-            className="flex-1 bg-background border-b-2 border-outline px-3 py-2.5 text-foreground focus:outline-none focus:border-primary font-mono text-sm transition-colors rounded-none placeholder:text-tertiary disabled:opacity-50"
+            placeholder="Habla con tu coach..."
+            className="flex-1 min-w-0 bg-background border-b-2 border-outline px-3 py-2.5 text-foreground focus:outline-none focus:border-primary font-mono text-sm transition-colors rounded-none placeholder:text-tertiary disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isTyping || !input.trim()}
-            className="p-2.5 bg-primary text-black hover:bg-white transition-colors duration-100 disabled:opacity-40"
+            className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-black hover:bg-white transition-colors duration-100 disabled:opacity-40"
           >
             <Send size={16} />
           </button>

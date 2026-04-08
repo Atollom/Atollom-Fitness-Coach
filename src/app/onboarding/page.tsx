@@ -13,8 +13,8 @@ type Message = {
 export default function Onboarding() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([
-    { role: "system", content: "[ATOLLOM OS]: INITIALIZING ONBOARDING PROTOCOL..." },
-    { role: "coach", content: "Soy ATLAS. Tu nuevo cerebro de disciplina. Para configurar tu sistema operativo necesito contexto: ¿Cuál es tu peso actual y cuál es tu objetivo principal?" }
+    { role: "system", content: "ATOLLOM AI — Personal Coach System activado" },
+    { role: "coach", content: "¡Hola! Soy ATLAS, tu coach personal con IA 💪 Estoy aquí para construirte un plan 100% personalizado que realmente funcione. Para hacerlo bien necesito conocerte primero. ¿Cómo te llamas y cuál es tu objetivo principal — bajar peso, ganar músculo, tonificar?" }
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -113,22 +113,22 @@ export default function Onboarding() {
       </section>
 
       {/* Input Form */}
-      <footer className="absolute bottom-0 w-full p-4 bg-background border-t-2 border-surface-low z-10">
-        <form onSubmit={handleSend} className="flex gap-2">
+      <footer className="absolute bottom-0 w-full px-3 py-3 bg-background border-t-2 border-surface-low z-10">
+        <form onSubmit={handleSend} className="flex gap-2 w-full">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
-            placeholder="Responde al sistema..."
-            className="flex-1 bg-surface-low border-2 border-outline px-4 py-3 text-foreground focus:outline-none focus:border-primary font-mono text-sm transition-colors rounded-none placeholder:text-tertiary disabled:opacity-50"
+            placeholder="Responde a tu coach..."
+            className="flex-1 min-w-0 bg-surface-low border-2 border-outline px-3 py-2.5 text-foreground focus:outline-none focus:border-primary font-mono text-sm transition-colors rounded-none placeholder:text-tertiary disabled:opacity-50"
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isTyping || !input.trim()}
-            className="p-3 bg-primary text-background hover:bg-white hover:text-black transition-colors duration-100 uppercase font-display text-sm font-bold disabled:opacity-50"
+            className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-black hover:bg-white transition-colors duration-100 disabled:opacity-50"
           >
-            <Send size={18} />
+            <Send size={16} />
           </button>
         </form>
       </footer>

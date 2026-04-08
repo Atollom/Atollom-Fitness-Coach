@@ -1,17 +1,17 @@
 {
-  "name": "ATOLLOM OS",
+  "name": "ATOLLOM AI — Personal Coach",
   "short_name": "ATOLLOM",
-  "description": "Tu Sistema Operativo de Disciplina",
+  "description": "Tu coach de fitness con inteligencia artificial",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#060b19",
-  "theme_color": "#a8df19",
+  "theme_color": "#060b19",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
