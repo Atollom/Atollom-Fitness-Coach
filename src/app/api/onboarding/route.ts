@@ -15,12 +15,15 @@ export async function POST(req: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const formattedHistory = history
+    // Gemini requiere que el historial empiece con "user" — omitir mensajes iniciales del coach
+    const allMapped = history
       .filter((h: { role: string }) => h.role !== "system")
       .map((h: { role: string; content: string }) => ({
         role: h.role === "coach" ? "model" : "user",
         parts: [{ text: h.content }],
       }));
+    const firstUserIdx = allMapped.findIndex((m: { role: string }) => m.role === "user");
+    const formattedHistory = firstUserIdx > 0 ? allMapped.slice(firstUserIdx) : firstUserIdx === 0 ? allMapped : [];
 
     const chat = model.startChat({
       history: formattedHistory,

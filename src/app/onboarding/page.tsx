@@ -58,7 +58,7 @@ export default function Onboarding() {
   };
 
   return (
-    <main className="flex flex-col h-screen bg-background text-foreground max-w-md mx-auto relative overflow-hidden">
+    <main className="flex flex-col h-screen bg-background text-foreground max-w-md mx-auto overflow-hidden">
       
       {/* Header */}
       <header className="flex justify-between items-center p-6 border-b-2 border-surface-low bg-background z-10 shrink-0">
@@ -70,7 +70,7 @@ export default function Onboarding() {
       </header>
 
       {/* Chat Area */}
-      <section className="flex-1 overflow-y-auto p-6 space-y-6 pb-32">
+      <section className="flex-1 overflow-y-auto p-6 space-y-6">
         <AnimatePresence initial={false}>
           {messages.map((msg, idx) => (
             <motion.div
@@ -113,7 +113,7 @@ export default function Onboarding() {
       </section>
 
       {/* Input Form */}
-      <footer className="absolute bottom-0 w-full px-3 py-3 bg-background border-t-2 border-surface-low z-10">
+      <footer className="shrink-0 px-3 py-3 bg-background border-t-2 border-surface-low">
         <form onSubmit={handleSend} className="flex gap-2 w-full">
           <input
             type="text"
