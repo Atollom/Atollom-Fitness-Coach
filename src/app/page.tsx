@@ -49,11 +49,14 @@ export default function Home() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const { subscribed, subscribe } = usePushNotifications();
 
-  // Redirect if no profile
+  // Redirect if no profile — con delay para evitar flash
   useEffect(() => {
-    fetch("/api/profile").then(r => r.json()).then(d => {
-      if (!d.profile) router.replace("/onboarding");
-    });
+    const t = setTimeout(() => {
+      fetch("/api/profile").then(r => r.json()).then(d => {
+        if (!d.profile) router.replace("/onboarding");
+      }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
   }, [router]);
 
   useEffect(() => {

@@ -73,6 +73,14 @@ export async function POST(req: NextRequest) {
       try {
         const raw = extractResult.response.text().replace(/```json|```/g, "").trim();
         const p = JSON.parse(raw);
+
+        // Normalizar tipos para evitar errores de DB
+        const supers: string[] = Array.isArray(p.supermercados)
+          ? p.supermercados
+          : typeof p.supermercados === "string"
+          ? p.supermercados.split(",").map((s: string) => s.trim())
+          : [];
+
         await sql`
           INSERT INTO user_profile (
             nombre, edad, genero, peso_kg, altura_cm, objetivo, lesiones,
@@ -80,16 +88,31 @@ export async function POST(req: NextRequest) {
             horario_trabajo, ventana_entrenamiento, equipo_disponible,
             presupuesto_semanal, supermercados, perfil_completo, raw_onboarding
           ) VALUES (
-            ${p.nombre}, ${p.edad}, ${p.genero}, ${p.peso_kg}, ${p.altura_cm},
-            ${p.objetivo}, ${p.lesiones}, ${p.problemas_salud}, ${p.alergias},
-            ${p.nivel_actividad}, ${p.horas_sueno}, ${p.nivel_estres},
-            ${p.horario_trabajo}, ${p.ventana_entrenamiento}, ${p.equipo_disponible},
-            ${p.presupuesto_semanal}, ${p.supermercados},
-            true, ${JSON.stringify(p)}
+            ${p.nombre ?? null},
+            ${p.edad ? Number(p.edad) : null},
+            ${p.genero ?? null},
+            ${p.peso_kg ? Number(p.peso_kg) : null},
+            ${p.altura_cm ? Number(p.altura_cm) : null},
+            ${p.objetivo ?? null},
+            ${p.lesiones ?? null},
+            ${p.problemas_salud ?? null},
+            ${p.alergias ?? null},
+            ${p.nivel_actividad ?? null},
+            ${p.horas_sueno ? Number(p.horas_sueno) : null},
+            ${p.nivel_estres ?? null},
+            ${p.horario_trabajo ?? null},
+            ${p.ventana_entrenamiento ?? null},
+            ${p.equipo_disponible ?? null},
+            ${p.presupuesto_semanal ? Number(p.presupuesto_semanal) : null},
+            ${supers},
+            true,
+            ${JSON.stringify(p)}
           )
         `;
-      } catch (dbErr) {
-        console.error("Error guardando perfil:", dbErr);
+        console.log("Perfil guardado:", p.nombre);
+      } catch (dbErr: unknown) {
+        const msg = dbErr instanceof Error ? dbErr.message : String(dbErr);
+        console.error("Error guardando perfil:", msg);
       }
     }
 
