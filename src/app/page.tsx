@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Send, Terminal, Loader2, Zap, AlertTriangle, Battery, Bell, BellOff } from "lucide-react";
+import { Send, Terminal, Loader2, Zap, AlertTriangle, Battery, Bell, BellOff, Utensils } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
 type Message = {
@@ -194,6 +195,13 @@ export default function Home() {
             );
           })}
         </div>
+      </div>
+
+      {/* Nav */}
+      <div className="px-4 pt-2 shrink-0">
+        <Link href="/food" className="flex items-center gap-2 border-2 border-outline text-tertiary hover:border-primary hover:text-primary transition-colors py-2.5 px-4 font-display text-xs uppercase tracking-widest font-bold w-full justify-center">
+          <Utensils size={13} /> Analizar Comida
+        </Link>
       </div>
 
       {/* Chat Input */}
