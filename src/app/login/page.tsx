@@ -93,7 +93,9 @@ export default function LoginPage() {
 
       {/* Logo */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 text-center">
-        <Image src="/logo.png" alt="ATOLLOM AI" width={100} height={100} className="mx-auto object-contain mb-4" priority />
+        <div className="rounded-2xl overflow-hidden shadow-xl shadow-primary/10 inline-block">
+          <Image src="/logo.png" alt="ATOLLOM AI" width={130} height={130} className="object-contain" priority />
+        </div>
         <h1 className="font-display font-bold text-2xl text-foreground uppercase tracking-widest">ATOLLOM AI</h1>
         <p className="font-display text-xs text-primary uppercase tracking-widest mt-1">Personal Coach System</p>
       </motion.div>
