@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Send, Terminal, Loader2, Zap, AlertTriangle, Battery, Bell, BellOff, Utensils } from "lucide-react";
+import { Send, Terminal, Loader2, Zap, AlertTriangle, Battery, Bell, BellOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import BottomNav from "./components/BottomNav";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
 type Message = {
@@ -39,12 +40,20 @@ function formatMessage(text: string) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [time, setTime] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const { subscribed, subscribe } = usePushNotifications();
+
+  // Redirect if no profile
+  useEffect(() => {
+    fetch("/api/profile").then(r => r.json()).then(d => {
+      if (!d.profile) router.replace("/onboarding");
+    });
+  }, [router]);
 
   useEffect(() => {
     const tick = () => {
@@ -85,7 +94,7 @@ export default function Home() {
   const hasMessages = messages.length > 0;
 
   return (
-    <main className="flex flex-col h-screen bg-background text-foreground max-w-md mx-auto overflow-hidden">
+    <main className="flex flex-col h-screen bg-background text-foreground max-w-md mx-auto overflow-hidden pb-16">
 
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 border-b-2 border-surface-low shrink-0">
@@ -197,13 +206,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Nav */}
-      <div className="px-4 pt-2 shrink-0">
-        <Link href="/food" className="flex items-center gap-2 border-2 border-outline text-tertiary hover:border-primary hover:text-primary transition-colors py-2.5 px-4 font-display text-xs uppercase tracking-widest font-bold w-full justify-center">
-          <Utensils size={13} /> Analizar Comida
-        </Link>
-      </div>
-
       {/* Chat Input */}
       <footer className="px-4 py-3 bg-surface-low border-t-2 border-surface-high shrink-0">
         <form
@@ -227,6 +229,7 @@ export default function Home() {
           </button>
         </form>
       </footer>
+      <BottomNav />
     </main>
   );
 }

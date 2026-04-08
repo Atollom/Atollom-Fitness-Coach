@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Terminal, Camera, Type, Loader2, ArrowLeft } from "lucide-react";
+import { Terminal, Camera, Type, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import BottomNav from "../components/BottomNav";
 
 export default function FoodAnalysis() {
   const [mode, setMode] = useState<"text" | "photo">("text");
@@ -46,12 +46,9 @@ export default function FoodAnalysis() {
   };
 
   return (
-    <main className="flex flex-col min-h-screen bg-background text-foreground max-w-md mx-auto">
+    <main className="flex flex-col min-h-screen bg-background text-foreground max-w-md mx-auto pb-24">
 
       <header className="flex items-center gap-3 px-6 py-4 border-b-2 border-surface-low shrink-0">
-        <Link href="/" className="text-tertiary hover:text-primary transition-colors">
-          <ArrowLeft size={18} />
-        </Link>
         <Terminal size={16} className="text-primary" />
         <span className="font-display font-bold text-sm tracking-widest text-primary uppercase">Análisis de Comida</span>
       </header>
@@ -132,6 +129,7 @@ export default function FoodAnalysis() {
           )}
         </AnimatePresence>
       </div>
+      <BottomNav />
     </main>
   );
 }
