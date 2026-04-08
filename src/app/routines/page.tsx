@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dumbbell, RefreshCw, ExternalLink, Loader2, Play } from "lucide-react";
+import { Dumbbell, RefreshCw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import BottomNav from "../components/BottomNav";
+import YouTubeCard from "../components/YouTubeCard";
 
-type Ejercicio = { nombre: string; series: number; reps: string; youtube?: string };
+type Ejercicio = { nombre: string; series: number; reps: string; youtube?: string; videoId?: string; channel?: string };
 type Dia = { dia: string; tipo: string; duracion: string; ejercicios: Ejercicio[]; nota: string };
 type Routine = { plan: { dias: Dia[] }; week_start: string };
 
@@ -108,12 +109,9 @@ export default function Routines() {
                               <p className="font-display text-xs font-bold text-foreground uppercase tracking-wide">{ej.nombre}</p>
                               <p className="font-mono text-xs text-tertiary">{ej.series} series × {ej.reps}</p>
                             </div>
-                            {ej.youtube && (
-                              <a href={ej.youtube} target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-secondary-dim hover:text-white transition-colors font-display text-[10px] uppercase tracking-widest font-bold border border-secondary-dim px-2 py-1">
-                                <Play size={10} /> Ver
-                              </a>
-                            )}
+                            {ej.videoId && (
+                            <YouTubeCard videoId={ej.videoId} title={ej.nombre} channel={ej.channel} />
+                          )}
                           </div>
                         ))}
                       </div>

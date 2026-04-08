@@ -53,6 +53,23 @@ Reglas:
     return NextResponse.json({ error: "Error generando plan" }, { status: 500 });
   }
 
+  // Enriquecer ejercicios con videos reales de YouTube
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  for (const dia of plan.dias) {
+    if (!dia.ejercicios) continue;
+    for (const ej of dia.ejercicios) {
+      try {
+        const res = await fetch(`${baseUrl}/api/youtube?q=${encodeURIComponent(ej.nombre)}`);
+        const data = await res.json();
+        if (data.videos?.[0]) {
+          ej.videoId = data.videos[0].videoId;
+          ej.channel = data.videos[0].channel;
+          ej.youtube = data.videos[0].url;
+        }
+      } catch { /* continuar sin video */ }
+    }
+  }
+
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
   const weekStr = weekStart.toISOString().split("T")[0];
