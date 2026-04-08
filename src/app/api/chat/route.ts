@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const maxDuration = 60;
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { neon } from "@neondatabase/serverless";
 
@@ -42,7 +43,7 @@ CAPACIDADES:
 4. Termina sugerencias de entrenamiento con frase de cierre motivadora.`;
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash-lite",
       systemInstruction: { role: "system", parts: [{ text: systemPrompt }] },
     });
 

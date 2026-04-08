@@ -15,7 +15,7 @@ export async function POST() {
   const profile = profiles[0];
   if (!profile) return NextResponse.json({ error: "Sin perfil" }, { status: 400 });
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
   const prompt = `Eres ATLAS. Genera un plan de entrenamiento semanal para este usuario:
 - Peso: ${profile.peso_kg} kg

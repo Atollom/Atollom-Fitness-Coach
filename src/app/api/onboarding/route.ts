@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const maxDuration = 60; // Vercel Pro permite más, free tier cap en 60s
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { neon } from "@neondatabase/serverless";
 
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash-lite",
       systemInstruction: { role: "system", parts: [{ text: SYSTEM_PROMPT }] },
     });
 
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
         { role: "model", parts: [{ text: textResponse }] },
       ].map(m => `${m.role}: ${m.parts[0].text}`).join("\n");
 
-      const extractModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const extractModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const extractResult = await extractModel.generateContent(
         `Extrae datos del historial. Devuelve SOLO JSON sin markdown:\n{"nombre":null,"edad":null,"genero":null,"peso_kg":null,"altura_cm":null,"objetivo":null,"lesiones":null,"problemas_salud":null,"alergias":null,"nivel_actividad":null,"horas_sueno":null,"nivel_estres":null,"horario_trabajo":null,"ventana_entrenamiento":null,"equipo_disponible":null,"presupuesto_semanal":null,"supermercados":null}\n\nHistorial:\n${allText}`
       );

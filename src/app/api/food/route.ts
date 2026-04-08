@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       ? `Perfil: objetivo=${profile.objetivo}, presupuesto=$${profile.presupuesto_semanal} MXN/semana, tiendas=${Array.isArray(profile.supermercados) ? profile.supermercados.join(", ") : "local"}`
       : "";
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     const systemPrompt = `Eres ATLAS analizando la ingesta del usuario. ${profileCtx}
 
